@@ -1,0 +1,10 @@
+Webrtc has following steps
+1. Peer 1 will send offer to Peer 2. The medium could be any
+2. Peer 2 will send answer to Peer 1.
+3. After offer and answer they will agree upon ICE candidates (ICE candidates could be considered as nodes in between the path of Peer 1 and Peer 2)
+4. This process is called singalling
+
+ICE = Interactive Connectivity Establishment (It used STUN or TURN server)
+
+
+npm init @vitejs/app client --template react
