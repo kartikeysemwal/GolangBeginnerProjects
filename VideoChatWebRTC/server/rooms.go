@@ -25,7 +25,7 @@ func (r *RoomMap) Init() {
 
 func (r *RoomMap) Get(roomID string) []Participant {
 	r.Mutex.RLock()
-	defer r.Mutex.Unlock()
+	defer r.Mutex.RUnlock()
 
 	return r.Map[roomID]
 }
@@ -35,8 +35,7 @@ func (r *RoomMap) CreateRoom() string {
 	defer r.Mutex.Unlock()
 
 	rand.Seed(time.Now().UnixNano())
-	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ123456789")
-
+	var letters = []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
 	b := make([]rune, 8)
 
 	for i := range b {
@@ -49,14 +48,32 @@ func (r *RoomMap) CreateRoom() string {
 	return roomID
 }
 
+// func (r *RoomMap) InsertIntoRoom(roomID string, host bool, conn *websocket.Conn) {
+// 	r.Mutex.Lock()
+// 	defer r.Mutex.Unlock()
+
+// 	p := Participant{Host: host, Conn: conn}
+
+// 	log.Println("Inserting into room with roomID: ", roomID)
+
+// 	if participants, ok := r.Map[roomID]; ok {
+// 		for _, element := range participants {
+// 			if element.Conn != p.Conn {
+// 				r.Map[roomID] = append(r.Map[roomID], p)
+// 			} else {
+// 				log.Panicln("Skipping participant as it is already added to room")
+// 			}
+// 		}
+// 	}
+// }
+
 func (r *RoomMap) InsertIntoRoom(roomID string, host bool, conn *websocket.Conn) {
 	r.Mutex.Lock()
 	defer r.Mutex.Unlock()
 
-	p := Participant{Host: host, Conn: conn}
+	p := Participant{host, conn}
 
-	log.Println("Inserting into room with roomID: ", roomID)
-
+	log.Println("Inserting into Room with RoomID: ", roomID)
 	r.Map[roomID] = append(r.Map[roomID], p)
 }
 

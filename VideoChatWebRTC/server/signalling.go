@@ -12,7 +12,6 @@ var AllRooms RoomMap
 
 func CreateRoomRequestHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
-
 	roomID := AllRooms.CreateRoom()
 
 	type resp struct {
@@ -35,18 +34,21 @@ type broadcastMsg struct {
 	Client  *websocket.Conn
 }
 
-var broadcast = make(chan broadcastMsg)
+var broadcast = make(chan broadcastMsg, 100)
 
 func broadcaster() {
 	for {
 		msg := <-broadcast
+
+		log.Println("broadcaster msg: ", msg.Message)
 
 		for _, client := range AllRooms.Map[msg.RoomID] {
 			if client.Conn != msg.Client {
 				err := client.Conn.WriteJSON(msg.Message)
 
 				if err != nil {
-					log.Fatal(err)
+					log.Println("this is an error message")
+					log.Println(err)
 					client.Conn.Close()
 				}
 			}
@@ -65,26 +67,41 @@ func JoinRoomRequestHandler(w http.ResponseWriter, r *http.Request) {
 	ws, err := upgrader.Upgrade(w, r, nil)
 
 	if err != nil {
-		log.Fatal("Web socket  upgrade error", err)
+		log.Println("Web socket  upgrade error", err)
 	}
 
 	AllRooms.InsertIntoRoom(roomID[0], false, ws)
 
-	go broadcaster()
+	// go broadcaster()
 
 	for {
 		var msg broadcastMsg
 
 		err := ws.ReadJSON(&msg.Message)
 
+		// if err != nil {
+		// 	log.Println("Read error: ", err)
+		// 	continue
+		// }
+
 		if err != nil {
-			log.Fatal("Read error: ", err)
+			if websocket.IsCloseError(err, websocket.CloseGoingAway) {
+				log.Println("WebSocket connection is going away")
+			} else {
+				log.Println("Read error:", err)
+			}
+			break // Exit the loop and function on read error
 		}
 
 		msg.Client = ws
 		msg.RoomID = roomID[0]
 
-		broadcast <- msg
+		log.Println("JoinRoomRequestHandler ", msg.Message)
 
+		broadcast <- msg
 	}
+}
+
+func InitBroadcaster() {
+	go broadcaster()
 }
