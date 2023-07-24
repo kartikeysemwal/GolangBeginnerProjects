@@ -10,7 +10,7 @@ import (
 )
 
 func callcallSayHelloBidirectionalStreaming(client pb.GreetServiceClient, names *pb.NamesList) {
-	log.Printf("Bidirectional streaming started from server side")
+	log.Printf("Bidirectional streaming started from client side")
 
 	stream, err := client.SayHelloBidirectionalStreaming(context.Background())
 
@@ -18,10 +18,10 @@ func callcallSayHelloBidirectionalStreaming(client pb.GreetServiceClient, names 
 		log.Fatalf("Not able to start stream %v", err)
 	}
 
-	first := true
+	// syncChan := make(chan struct{})
 
-	for _, name := range names.Names {
-		if !first {
+	go func() {
+		for {
 			message, err := stream.Recv()
 			if err == io.EOF {
 				break
@@ -31,9 +31,10 @@ func callcallSayHelloBidirectionalStreaming(client pb.GreetServiceClient, names 
 			}
 			log.Printf("callSayHelloBidirectionalStreaming: Message from server %v", message.Message)
 		}
+		// close(syncChan)
+	}()
 
-		first = false
-
+	for _, name := range names.Names {
 		req := &pb.HelloRequest{
 			Name: name,
 		}
@@ -44,6 +45,7 @@ func callcallSayHelloBidirectionalStreaming(client pb.GreetServiceClient, names 
 	}
 
 	stream.CloseSend()
+	// <-syncChan
 
 	log.Printf("Bidirectional streaming ended from server side")
 }
