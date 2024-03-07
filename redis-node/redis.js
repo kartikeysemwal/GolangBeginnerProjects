@@ -6,7 +6,7 @@ const client = createClient();
 
 export async function getCounter() {
   return new Promise((resolve, reject) => {
-    client.get("counter", (err, res) => {
+    client.get("COUNTER", (err, res) => {
       if (err) {
         reject(err);
         return;
@@ -18,7 +18,7 @@ export async function getCounter() {
 }
 
 export async function incrCounter() {
-  client.incr("counter", (err, res) => {
+  client.incr("COUNTER", (err, res) => {
     if (err) {
       throw err;
     }
@@ -32,7 +32,7 @@ export async function incrCounter() {
 
   // let value = (await getCounter()) + 1;
   // // console.log("Value", value);
-  // client.set("counter", value, (err, res) => {
+  // client.set("COUNTER", value, (err, res) => {
   //   if (err) {
   //     throw err;
   //   }
