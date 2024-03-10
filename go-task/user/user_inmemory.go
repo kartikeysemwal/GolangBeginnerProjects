@@ -23,9 +23,6 @@ func InitInMemoryUserApp() *InMemoryUserConfig {
 }
 
 func (app *InMemoryUserConfig) CreateUser(user User) (User, error) {
-	app.mutex.Lock()
-	defer app.mutex.Unlock()
-
 	if len(user.Name) == 0 || len(user.Email) == 0 {
 		return User{}, errors.New("User data is invalid. Either name or email is empty")
 	}
@@ -36,11 +33,13 @@ func (app *InMemoryUserConfig) CreateUser(user User) (User, error) {
 		}
 	}
 
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
+
 	toAddUserID := app.incrID
 	app.incrID++
 
 	user.ID = toAddUserID
-
 	app.userDB[toAddUserID] = user
 
 	return user, nil
@@ -58,9 +57,6 @@ func (app *InMemoryUserConfig) ReadUser(id int) (User, error) {
 }
 
 func (app *InMemoryUserConfig) UpdateUser(toUpdateUser User) (User, error) {
-	app.mutex.Lock()
-	defer app.mutex.Unlock()
-
 	curUser, err := app.ReadUser(toUpdateUser.ID)
 
 	if err != nil {
@@ -83,20 +79,23 @@ func (app *InMemoryUserConfig) UpdateUser(toUpdateUser User) (User, error) {
 		return User{}, errors.New("No new field value is provided for update")
 	}
 
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
+
 	app.userDB[curUser.ID] = curUser
 
 	return curUser, nil
 }
 
 func (app *InMemoryUserConfig) DeleteUser(id int) error {
-	app.mutex.Lock()
-	defer app.mutex.Unlock()
-
 	_, err := app.ReadUser(id)
 
 	if err != nil {
 		return err
 	}
+
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
 
 	delete(app.userDB, id)
 

@@ -8,7 +8,7 @@ import (
 )
 
 func TestCreateUser(t *testing.T) {
-	app := InitApp()
+	app := InitInMemoryUserApp()
 
 	// Test valid user creation
 	user1 := User{Name: "John", Email: "john@example.com"}
@@ -30,7 +30,7 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestReadUser(t *testing.T) {
-	app := InitApp()
+	app := InitInMemoryUserApp()
 
 	// Test reading a non-existent user
 	_, err := app.ReadUser(1)
@@ -53,7 +53,7 @@ func TestReadUser(t *testing.T) {
 }
 
 func TestUpdateUser(t *testing.T) {
-	app := InitApp()
+	app := InitInMemoryUserApp()
 
 	// Test updating a non-existent user
 	invalidUser := User{ID: 1, Name: "Bob", Email: "bob@example.com"}
@@ -79,7 +79,7 @@ func TestUpdateUser(t *testing.T) {
 }
 
 func TestDeleteUser(t *testing.T) {
-	app := InitApp()
+	app := InitInMemoryUserApp()
 
 	// Test deleting a non-existent user
 	err := app.DeleteUser(1)
@@ -104,7 +104,7 @@ func TestDeleteUser(t *testing.T) {
 }
 
 func TestConcurrentCreateUser(t *testing.T) {
-	app := InitApp()
+	app := InitInMemoryUserApp()
 	var wg sync.WaitGroup
 	numRoutines := 100
 

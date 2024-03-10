@@ -33,11 +33,11 @@ func main() {
 		userManager: userInMemory,
 	}
 
-	_, err := server.userManager.CreateUser(user.User{Name: "John Smith", Email: "john@gmail.com"})
+	// _, err := server.userManager.CreateUser(user.User{Name: "John Smith", Email: "john@gmail.com"})
 
-	if err != nil {
-		fmt.Println(err)
-	}
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
 
 	log.Printf("Starting go-task service on port %s\n", port)
 
@@ -46,7 +46,7 @@ func main() {
 		Handler: server.routes(),
 	}
 
-	err = srv.ListenAndServe()
+	err := srv.ListenAndServe()
 
 	if err != nil {
 		log.Panic(err)

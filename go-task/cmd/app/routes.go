@@ -23,6 +23,10 @@ func (server *Server) routes() http.Handler {
 	mux.Use(middleware.Heartbeat("/ping"))
 
 	mux.Get("/", server.Ping)
+	mux.Post("/createUser", server.CreateUser)
+	mux.Get("/readUser", server.ReadUser)
+	mux.Post("/updateUser", server.UpdateUser)
+	mux.Post("/deleteUser", server.DeleteUser)
 
 	return mux
 }
