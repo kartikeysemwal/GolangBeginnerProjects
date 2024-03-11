@@ -5,6 +5,8 @@ import (
 	"log"
 	"net/http"
 
+	_ "net/http/pprof"
+
 	"goproj.com/user"
 )
 
@@ -15,6 +17,10 @@ type Server struct {
 }
 
 func main() {
+	go func() {
+		fmt.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
 	// app := user.InitApp()
 
 	// m * testing.M
@@ -23,7 +29,7 @@ func main() {
 
 	userInMemory := user.InitInMemoryUserApp()
 
-	// userDB, err := user.InitSQLiteUserApp("./")
+	// userDB, err := user.InitSQLiteUserApp("C:\\Important Files\\GolangSmallProjects\\go-task\\cmd\\app\\db")
 
 	// if err != nil {
 	// 	log.Fatal("Error in iniliatizing SQLite user app", err)
@@ -51,4 +57,5 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+
 }

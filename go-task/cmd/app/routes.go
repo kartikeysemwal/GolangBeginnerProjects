@@ -2,6 +2,7 @@ package main
 
 import (
 	"net/http"
+	"net/http/pprof"
 
 	"github.com/go-chi/chi/middleware"
 	"github.com/go-chi/chi/v5"
@@ -21,6 +22,12 @@ func (server *Server) routes() http.Handler {
 	}))
 
 	mux.Use(middleware.Heartbeat("/ping"))
+
+	mux.Mount("/debug/pprof", http.HandlerFunc(pprof.Index))
+	mux.Mount("/debug/pprof/cmdline", http.HandlerFunc(pprof.Cmdline))
+	mux.Mount("/debug/pprof/profile", http.HandlerFunc(pprof.Profile))
+	mux.Mount("/debug/pprof/symbol", http.HandlerFunc(pprof.Symbol))
+	mux.Mount("/debug/pprof/trace", http.HandlerFunc(pprof.Trace))
 
 	mux.Get("/", server.Ping)
 	mux.Post("/createUser", server.CreateUser)

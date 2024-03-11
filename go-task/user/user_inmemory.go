@@ -27,14 +27,14 @@ func (app *InMemoryUserConfig) CreateUser(user User) (User, error) {
 		return User{}, errors.New("User data is invalid. Either name or email is empty")
 	}
 
+	app.mutex.Lock()
+	defer app.mutex.Unlock()
+
 	for _, existingUser := range app.userDB {
 		if existingUser.Name == user.Name || existingUser.Email == user.Email {
 			return User{}, errors.New("User with the same name/email already exists")
 		}
 	}
-
-	app.mutex.Lock()
-	defer app.mutex.Unlock()
 
 	toAddUserID := app.incrID
 	app.incrID++

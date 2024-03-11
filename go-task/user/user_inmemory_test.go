@@ -127,6 +127,65 @@ func TestConcurrentCreateUser(t *testing.T) {
 	}
 }
 
+func TestConcurrentOperations(t *testing.T) {
+	app := InitInMemoryUserApp()
+	var wg sync.WaitGroup
+	numRoutines := 100
+
+	// Create users concurrently
+	wg.Add(numRoutines)
+	for i := 0; i < numRoutines; i++ {
+		go func(index int) {
+			defer wg.Done()
+			user := User{Name: fmt.Sprintf("User%d", index), Email: fmt.Sprintf("user%d@example.com", index)}
+			_, err := app.CreateUser(user)
+			if err != nil {
+				t.Errorf("Error creating user in goroutine: %v", err)
+			}
+		}(i)
+	}
+
+	wg.Wait()
+
+	// Read, update, and delete users concurrently
+	wg.Add(numRoutines)
+	for i := 0; i < numRoutines; i++ {
+		go func(index int) {
+			defer wg.Done()
+
+			// Read user
+			readUser, err := app.ReadUser(index + 1) // Assuming user IDs start from 1
+			if err != nil {
+				t.Errorf("Error reading user in goroutine: %v", err)
+			}
+
+			// Update user
+			readUser.Name = fmt.Sprintf("UpdatedUser%d", index)
+			readUser.Email = fmt.Sprintf("updateduser%d@example.com", index)
+			_, err = app.UpdateUser(readUser)
+			if err != nil {
+				t.Errorf("Error updating user in goroutine: %v", err)
+			}
+
+			// Delete user
+			err = app.DeleteUser(index + 1)
+			if err != nil {
+				t.Errorf("Error deleting user in goroutine: %v", err)
+			}
+		}(i)
+	}
+
+	wg.Wait()
+
+	// Verify that all users are deleted
+	for i := 0; i < numRoutines; i++ {
+		_, err := app.ReadUser(i + 1)
+		if err == nil {
+			t.Errorf("Expected an error for reading a deleted user in goroutine %d", i)
+		}
+	}
+}
+
 func TestMain(m *testing.M) {
 	// Run the tests
 	exitCode := m.Run()
