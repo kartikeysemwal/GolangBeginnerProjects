@@ -30,10 +30,10 @@ func (server *Server) routes() http.Handler {
 	mux.Mount("/debug/pprof/trace", http.HandlerFunc(pprof.Trace))
 
 	mux.Get("/", server.Ping)
-	mux.Post("/createUser", server.CreateUser)
-	mux.Get("/readUser", server.ReadUser)
-	mux.Post("/updateUser", server.UpdateUser)
-	mux.Post("/deleteUser", server.DeleteUser)
+	mux.Post("/user", server.CreateUser)
+	mux.Get("/user", server.ReadUser)
+	mux.Patch("/user", server.UpdateUser)
+	mux.Delete("/user", server.DeleteUser)
 
 	return mux
 }
